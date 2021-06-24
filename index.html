@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wavesurfer multi player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .myTrack {
+            background-color: lightyellow;
+            border: 1px solid lightblue;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 20px 0;
+            box-shadow: 0px 5px 7px -3px #000000, 3px 3px 7px 3px rgba(0, 0, 0, 0);
+
+        }
+
+        .trackDuration {
+            background-color: bisque;
+        }
+
+        .btnTrack {
+            color: SteelBlue;
+            margin: 10px 5px;
+        }
+
+        .btnTrack:hover {
+            cursor: pointer;
+            color: LightSteelBlue;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="waveform"></div>
+
+    <script src="https://unpkg.com/wavesurfer.js/dist/wavesurfer.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+
+            const waveContainer = document.getElementById('waveform')
+            const wavesurfer = []
+
+            function addTrack(id, url) {
+                const filename = url.split('/').pop()
+                const domEl = document.createElement('div')
+                domEl.classList.add('myTrack')
+
+                const trackName = document.createElement('p')
+                const trackDuration = document.createElement('div')
+                trackName.textContent = filename
+                domEl.appendChild(trackName)
+
+                wavesurfer[id] = WaveSurfer.create({
+                    container: domEl,
+                    height: 50,
+                    waveColor: 'DodgerBlue',
+                    progressColor: 'Navy',
+                    barWidth: 2,
+                    barHeight: 1,
+                    barGap: null,
+                    responsive: true,
+                    hideScrollbar: true,
+                    partialRender: true
+                })
+
+                wavesurfer[id].load(url)
+
+                const btnPlay = document.createElement('i')
+                const btnStop = document.createElement('i')
+
+                btnPlay.classList.add('btnTrack', 'fas', 'fa-play')
+                btnStop.classList.add('btnTrack', 'fas', 'fa-stop')
+
+                domEl.appendChild(btnPlay)
+                domEl.appendChild(btnStop)
+                waveContainer.appendChild(domEl)
+
+                wavesurfer[id].on('ready', () => {
+                    let minute = Math.floor((wavesurfer[id].getDuration() % 3600) / 60)
+                    let second = Math.floor(wavesurfer[id].getDuration() % 60)
+
+                    second < 10 ? second = '0' + second : null
+
+                    trackDuration.classList.add('trackDuration')
+                    trackDuration.textContent = `${minute}:${second}`
+                    domEl.appendChild(trackDuration)
+                })
+
+                btnPlay.addEventListener('click', () => {
+                    wavesurfer.forEach(e => {
+                        e.pause()
+                    })
+                    wavesurfer[id].play()
+                })
+                btnStop.addEventListener('click', () => {
+                    wavesurfer[id].stop()
+                })
+                return wavesurfer
+            }
+            addTrack(1, './mp3/1.mp3')
+            addTrack(2, './mp3/2.mp3')
+            addTrack(3, './mp3/3.mp3')
+        })
+
+
+    </script>
+</body>
+
+</html>
